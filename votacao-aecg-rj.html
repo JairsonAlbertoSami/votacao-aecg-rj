@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Votação AECG-RJ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root{
+    --green-deep:#0B3D2E;
+    --green-dark:#0A2E22;
+    --cream:#F7F1E3;
+    --gold:#E8B923;
+    --red:#CE1126;
+    --ink:#16231C;
+    --ink-soft:#4A5850;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 15% -10%, rgba(232,185,35,0.12), transparent 45%),
+      linear-gradient(160deg, var(--green-deep), var(--green-dark) 70%);
+    font-family:'Inter', sans-serif;
+    color:var(--ink);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:32px 16px 64px;
+  }
+  .brand{
+    text-align:center;
+    color:var(--cream);
+    margin-bottom:28px;
+  }
+  .brand .eyebrow{
+    font-size:12px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--gold);
+    font-weight:600;
+    margin-bottom:6px;
+  }
+  .brand h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(26px,5vw,38px);
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .brand p{
+    margin:8px 0 0;
+    font-size:14px;
+    color:#CFE0D6;
+  }
+  .tabs{
+    display:flex;
+    gap:4px;
+    background:rgba(0,0,0,0.18);
+    padding:4px;
+    border-radius:999px;
+    margin-bottom:24px;
+  }
+  .tab-btn{
+    border:none;
+    background:transparent;
+    color:#CFE0D6;
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    font-weight:600;
+    padding:8px 18px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:background .2s, color .2s;
+  }
+  .tab-btn.active{
+    background:var(--gold);
+    color:var(--green-dark);
+  }
+  .card{
+    width:100%;
+    max-width:460px;
+    background:var(--cream);
+    border-radius:18px;
+    padding:28px 24px 26px;
+    box-shadow:0 24px 60px rgba(0,0,0,0.35);
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:0;left:0;right:0;
+    height:5px;
+    background:linear-gradient(90deg, var(--red), var(--gold) 50%, var(--green-deep) 100%);
+  }
+  .section-title{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:19px;
+    margin:0 0 4px;
+    color:var(--ink);
+  }
+  .section-sub{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:0 0 18px;
+    line-height:1.5;
+  }
+  input[type="text"], input[type="password"]{
+    width:100%;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1.5px solid #DCD3B8;
+    background:#fff;
+    font-size:15px;
+    font-family:'Inter',sans-serif;
+    outline:none;
+    transition:border-color .15s;
+  }
+  input[type="text"]:focus, input[type="password"]:focus{
+    border-color:var(--green-deep);
+  }
+  .results-list{
+    margin-top:10px;
+    max-height:220px;
+    overflow-y:auto;
+    border-radius:10px;
+    border:1px solid #E7DFC6;
+  }
+  .voter-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 14px;
+    font-size:14px;
+    cursor:pointer;
+    border-bottom:1px solid #EFE8D1;
+  }
+  .voter-row:last-child{border-bottom:none;}
+  .voter-row:hover{background:#FBF7EB;}
+  .voter-row .id-tag{
+    font-size:11px;
+    color:var(--ink-soft);
+    background:#EFE8D1;
+    padding:2px 7px;
+    border-radius:6px;
+  }
+  .empty-hint{
+    padding:14px;
+    font-size:13px;
+    color:var(--ink-soft);
+    text-align:center;
+  }
+  .confirm-box{
+    margin-top:16px;
+    background:#fff;
+    border:1.5px solid var(--gold);
+    border-radius:12px;
+    padding:14px 16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .confirm-box .who{
+    font-size:14px;
+  }
+  .confirm-box .who b{font-family:'Fraunces',serif; font-size:16px;}
+  .link-btn{
+    border:none;
+    background:none;
+    color:var(--red);
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+    text-decoration:underline;
+  }
+  .candidates{
+    margin-top:18px;
+    display:grid;
+    gap:12px;
+  }
+  .cand-card{
+    border:2px solid #E7DFC6;
+    background:#fff;
+    border-radius:14px;
+    padding:16px;
+    cursor:pointer;
+    transition:border-color .15s, transform .1s;
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .cand-card:hover{transform:translateY(-1px);}
+  .cand-card.selected{
+    border-color:var(--green-deep);
+    background:#F1F6F2;
+  }
+  .cand-badge{
+    width:44px;height:44px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:17px;
+    color:#fff;
+    flex-shrink:0;
+  }
+  .cand-photo{
+    width:44px;height:44px;
+    border-radius:50%;
+    object-fit:cover;
+    flex-shrink:0;
+    border:2px solid #E7DFC6;
+  }
+  .cand-name{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:17px;
+    margin:0;
+  }
+  .cand-desc{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin:2px 0 0;
+  }
+  .primary-btn{
+    margin-top:20px;
+    width:100%;
+    padding:13px;
+    border:none;
+    border-radius:10px;
+    background:var(--green-deep);
+    color:#fff;
+    font-size:15px;
+    font-weight:600;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    transition:background .15s, opacity .15s;
+  }
+  .primary-btn:disabled{
+    opacity:0.4;
+    cursor:not-allowed;
+  }
+  .primary-btn:not(:disabled):hover{background:#0F5038;}
+  .secondary-btn{
+    margin-top:10px;
+    width:100%;
+    padding:11px;
+    border:1.5px solid #DCD3B8;
+    border-radius:10px;
+    background:transparent;
+    color:var(--ink);
+    font-size:13px;
+    font-weight:600;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+  }
+  .status-msg{
+    margin-top:14px;
+    font-size:13px;
+    padding:10px 12px;
+    border-radius:8px;
+  }
+  .status-msg.error{background:#FBE7E7; color:var(--red);}
+  .status-msg.warn{background:#FDF3D9; color:#8A6300;}
+  /* stamp overlay */
+  .stamp-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(11,61,46,0.75);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:50;
+  }
+  .stamp-overlay.show{display:flex;}
+  .stamp{
+    width:190px;height:190px;
+    border-radius:50%;
+    border:6px solid var(--gold);
+    background:var(--green-deep);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:var(--cream);
+    text-align:center;
+    transform:scale(0.5) rotate(-18deg);
+    opacity:0;
+    animation:stampIn .5s cubic-bezier(.2,1.4,.4,1) forwards;
+    box-shadow:0 0 0 6px rgba(232,185,35,0.25);
+  }
+  .stamp .star{font-size:26px; color:var(--gold); margin-bottom:6px;}
+  .stamp .line1{font-family:'Fraunces',serif; font-weight:700; font-size:17px; letter-spacing:0.03em;}
+  .stamp .line2{font-size:11px; letter-spacing:0.15em; text-transform:uppercase; margin-top:4px; color:var(--gold);}
+  @keyframes stampIn{
+    to{transform:scale(1) rotate(-8deg); opacity:1;}
+  }
+  .bar-row{margin-bottom:14px;}
+  .bar-label{
+    display:flex; justify-content:space-between;
+    font-size:13px; font-weight:600; margin-bottom:6px;
+  }
+  .bar-track{
+    height:14px; border-radius:8px; background:#EFE8D1; overflow:hidden;
+  }
+  .bar-fill{
+    height:100%; border-radius:8px;
+    transition:width .5s ease;
+  }
+  .total-line{
+    font-size:12px; color:var(--ink-soft); margin-top:12px; text-align:center;
+  }
+  .footer-note{
+    max-width:460px;
+    color:#CFE0D6;
+    font-size:11.5px;
+    text-align:center;
+    margin-top:20px;
+    line-height:1.6;
+    opacity:0.85;
+  }
+</style>
+</head>
+<body>
+
+<div class="brand">
+  <div class="eyebrow">AECG-RJ · Processo Eleitoral 2026</div>
+  <h1>Cabine de Votação</h1>
+  <p>Escolha entre as duas candidaturas registadas</p>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="votar">Votar</button>
+  <button class="tab-btn" data-tab="painel">Painel de resultados</button>
+</div>
+
+<!-- VOTAR -->
+<div id="tab-votar">
+
+  <div class="card" id="step-find">
+    <p class="section-title">Quem está a votar?</p>
+    <p class="section-sub">Escreva o seu nome para se encontrar na lista de eleitores.</p>
+    <input type="text" id="search-input" placeholder="Digite o seu nome...">
+    <div class="results-list" id="search-results"></div>
+  </div>
+
+  <div class="card" id="step-vote" style="display:none;">
+    <p class="section-title">O seu voto</p>
+    <p class="section-sub">Confirme a sua identidade e escolha uma opção.</p>
+
+    <div class="confirm-box">
+      <div class="who">Eleitor(a): <b id="voter-name"></b></div>
+      <button class="link-btn" id="change-voter">trocar</button>
+    </div>
+
+    <div class="candidates" id="candidates-list"></div>
+
+    <button class="primary-btn" id="confirm-vote-btn" disabled>Confirmar voto</button>
+
+    <div id="google-confirm-box" style="display:none; margin-top:14px;">
+      <p class="section-sub" style="margin-bottom:10px;">Para concluir, confirme com uma conta Google válida — isto evita votos duplicados ou falsos.</p>
+      <div id="g_id_signin"></div>
+    </div>
+
+    <div id="vote-status"></div>
+  </div>
+
+  <div class="card" id="step-done" style="display:none;">
+    <p class="section-title">Obrigado por votar 🇬🇼</p>
+    <p class="section-sub" id="done-msg">O seu voto foi registado com sucesso.</p>
+  </div>
+
+</div>
+
+<!-- PAINEL -->
+<div id="tab-painel" style="display:none;">
+  <div class="card" id="painel-gate">
+    <p class="section-title">Acesso ao painel</p>
+    <p class="section-sub">Introduza a senha da comissão eleitoral para ver e exportar os resultados.</p>
+    <input type="password" id="painel-pass" placeholder="Senha">
+    <button class="primary-btn" id="painel-enter-btn">Entrar</button>
+    <div id="painel-status"></div>
+  </div>
+
+  <div class="card" id="painel-view" style="display:none;">
+    <p class="section-title">Resultados em tempo real</p>
+    <p class="section-sub">Contagem baseada nos votos já registados nesta urna.</p>
+    <div id="bars"></div>
+    <div class="total-line" id="total-line"></div>
+    <button class="secondary-btn" id="refresh-btn">Atualizar contagem</button>
+    <button class="primary-btn" id="export-btn">Baixar resultados (.csv)</button>
+  </div>
+</div>
+
+<p class="footer-note">
+  Cada eleitor(a) só pode votar uma vez, verificado pelo ID na lista de eleitores.<br>
+  Isto é uma urna simples para o processo interno da AECG-RJ — não é um sistema de votação eletrónica certificado.
+</p>
+
+<div class="stamp-overlay" id="stamp-overlay">
+  <div class="stamp">
+    <div class="star">★</div>
+    <div class="line1">VOTO REGISTADO</div>
+    <div class="line2">AECG-RJ 2026</div>
+  </div>
+</div>
+
+<script>
+// ---------- Dados ----------
+const ELEITORES = [
+  {id:"600", nome:"Jairson"},
+  {id:"488", nome:"Domilina"},
+  {id:"837", nome:"Eliseu"},
+  {id:"476", nome:"Winta"},
+  {id:"480", nome:"Bidanmatcha"},
+  {id:"485", nome:"Jacque"},
+  {id:"742", nome:"Alcione"},
+  {id:"644", nome:"Vasco"},
+  {id:"719", nome:"Quintino"},
+  {id:"739", nome:"Atuca"},
+  {id:"134", nome:"Ocante"},
+  {id:"923", nome:"Dalton"},
+  {id:"383", nome:"Jorgito"},
+  {id:"504", nome:"Brawn"},
+  {id:"507", nome:"Julinho"},
+  {id:"230", nome:"Ludimila"},
+  {id:"648", nome:"Salimatu"},
+  {id:"984", nome:"Baguessi"},
+  {id:"418", nome:"Florinda"},
+  {id:"364", nome:"Cidália"},
+  {id:"965", nome:"Benício"},
+  {id:"548", nome:"Aulatu"},
+  {id:"185", nome:"Mario"},
+  {id:"891", nome:"Ernesto"},
+  {id:"008", nome:"Aminata"},
+  {id:"006", nome:"Bamelimao"},
+  {id:"330", nome:"Marculino"},
+  {id:"241", nome:"Mama"},
+  {id:"797", nome:"Miriam"},
+  {id:"630", nome:"Alcinda"},
+  {id:"950", nome:"Luís"},
+  {id:"600b", nome:"Luís"},
+  {id:"058", nome:"Omar"},
+  {id:"913", nome:"Fernando"},
+  {id:"760", nome:"Jeilson"},
+  {id:"415", nome:"Maurício"},
+  {id:"007", nome:"Daçala"},
+  {id:"614", nome:"Ricardo"},
+  {id:"697", nome:"Sumaya"},
+  {id:"465", nome:"Rogério"},
+  {id:"446", nome:"Linia"}
+].map((v,i)=>({...v, idx:i}));
+
+const CANDIDATOS = [
+  // Preencha "foto" com um link direto de imagem (ex.: hospedada no Imgur, Google Drive público, etc.)
+  // Deixe "" para mostrar um círculo com a inicial do nome.
+  {key:"jacque_domilina", nome:"Jacque & Domilina", desc:"Chapa candidata", color:"#0B3D2E", foto:""},
+  {key:"dalton", nome:"Dalton", desc:"Candidato", color:"#CE1126", foto:""},
+  {key:"abstencao", nome:"Abstenção", desc:"Não deseja votar em nenhuma candidatura", color:"#8A8A8A", foto:""},
+  {key:"nulo", nome:"Voto nulo", desc:"Anular o voto", color:"#4A4A4A", foto:""}
+];
+
+const PAINEL_SENHA = "aecgrj2026";
+
+// URL do seu Google Apps Script (Web App) — já ligada à sua planilha.
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby3bjBSWTP3gTFbf9Vo59c2nJo7nEHMzJMcPqEPDh7ahU8MII3CN2g1y-qMsTqsGZtZQw/exec";
+
+// Cole aqui o Client ID do "Sign in with Google" (Google Cloud Console > Credenciais > ID do cliente OAuth).
+// Instruções completas na conversa com o Claude.
+const GOOGLE_CLIENT_ID = "COLE_AQUI_SEU_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
+
+let selectedVoter = null;
+let selectedCandidate = null;
+let googleIdToken = null;
+let googleEmail = null;
+
+function scriptConfigurado(){
+  return SCRIPT_URL && SCRIPT_URL.indexOf("http") === 0;
+}
+function loginConfigurado(){
+  return GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID.indexOf(".apps.googleusercontent.com") > -1 && GOOGLE_CLIENT_ID.indexOf("COLE_AQUI") === -1;
+}
+
+function mostrarBanner(msg){
+  const banner = document.createElement("div");
+  banner.style.cssText = "max-width:460px;background:#FDF3D9;color:#8A6300;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;text-align:center;";
+  banner.textContent = msg;
+  document.body.insertBefore(banner, document.querySelector(".tabs"));
+}
+if(!scriptConfigurado()){
+  mostrarBanner("⚠️ Este link ainda não está ligado à sua planilha Google. Configure a URL do Apps Script (SCRIPT_URL) no código.");
+}
+if(!loginConfigurado()){
+  mostrarBanner("⚠️ O login com Google ainda não está configurado. Preencha GOOGLE_CLIENT_ID no código para exigir conta Google antes de votar.");
+}
+
+// ---------- Login com Google (só é pedido no momento de confirmar o voto) ----------
+window.addEventListener("load", function(){
+  if(!loginConfigurado()) return;
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleCredentialResponse
+  });
+  google.accounts.id.renderButton(document.getElementById("g_id_signin"), {theme:"outline", size:"large", text:"signin_with", width:280});
+});
+
+function handleCredentialResponse(response){
+  googleIdToken = response.credential;
+  try{
+    const payloadB64 = googleIdToken.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+    const payload = JSON.parse(decodeURIComponent(escape(atob(payloadB64))));
+    googleEmail = payload.email;
+  }catch(e){
+    googleEmail = null;
+  }
+  document.getElementById("google-confirm-box").style.display = "none";
+  enviarVoto();
+}
+
+// ---------- Tabs ----------
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    const tab = btn.dataset.tab;
+    document.getElementById("tab-votar").style.display = tab==="votar" ? "block" : "none";
+    document.getElementById("tab-painel").style.display = tab==="painel" ? "block" : "none";
+  });
+});
+
+// ---------- Busca de eleitor ----------
+const searchInput = document.getElementById("search-input");
+const searchResults = document.getElementById("search-results");
+
+function renderSearch(query){
+  searchResults.innerHTML = "";
+  const q = query.trim().toLowerCase();
+  if(!q){ searchResults.innerHTML = ""; return; }
+  const matches = ELEITORES.filter(v=>v.nome.toLowerCase().includes(q));
+  if(matches.length===0){
+    searchResults.innerHTML = '<div class="empty-hint">Nenhum eleitor encontrado com esse nome.</div>';
+    return;
+  }
+  matches.slice(0,8).forEach(v=>{
+    const row = document.createElement("div");
+    row.className = "voter-row";
+    row.innerHTML = `<span>${v.nome}</span><span class="id-tag">ID ${v.id.replace('b','')}</span>`;
+    row.addEventListener("click", ()=> selectVoter(v));
+    searchResults.appendChild(row);
+  });
+}
+searchInput.addEventListener("input", e=> renderSearch(e.target.value));
+
+async function selectVoter(v){
+  selectedVoter = v;
+  document.getElementById("step-find").style.display = "none";
+  document.getElementById("step-done").style.display = "none";
+  document.getElementById("step-vote").style.display = "block";
+  document.getElementById("voter-name").textContent = `${v.nome} (ID ${v.id.replace('b','')})`;
+  selectedCandidate = null;
+  googleIdToken = null;
+  googleEmail = null;
+  const confirmBtn = document.getElementById("confirm-vote-btn");
+  confirmBtn.disabled = true;
+  confirmBtn.style.display = "block";
+  confirmBtn.textContent = "Confirmar voto";
+  document.getElementById("google-confirm-box").style.display = "none";
+  document.getElementById("vote-status").innerHTML = "";
+  renderCandidates();
+
+  // checa se já votou (consultando a planilha)
+  document.getElementById("vote-status").innerHTML = '<div class="status-msg warn">A verificar na planilha...</div>';
+  try{
+    const votos = await fetchVotos();
+    const meuId = v.id.replace('b','');
+    const jaVotou = votos.some(row => String(row.id) === meuId);
+    document.getElementById("vote-status").innerHTML = "";
+    if(jaVotou){
+      document.getElementById("step-vote").style.display = "none";
+      document.getElementById("step-done").style.display = "block";
+      document.getElementById("done-msg").textContent = `${v.nome}, já registámos o seu voto anteriormente. Obrigado por participar.`;
+    }
+  }catch(err){
+    document.getElementById("vote-status").innerHTML = '<div class="status-msg error">Não consegui verificar a planilha agora. Confira se a URL do Apps Script está configurada.</div>';
+  }
+}
+
+async function fetchVotos(){
+  if(!scriptConfigurado()) throw new Error("SCRIPT_URL não configurada");
+  const res = await fetch(SCRIPT_URL, {method:"GET"});
+  const data = await res.json();
+  return data.votos || [];
+}
+
+document.getElementById("change-voter").addEventListener("click", ()=>{
+  selectedVoter = null;
+  document.getElementById("step-vote").style.display = "none";
+  document.getElementById("step-find").style.display = "block";
+  searchInput.value = "";
+  searchResults.innerHTML = "";
+});
+
+// ---------- Candidatos ----------
+function renderCandidates(){
+  const wrap = document.getElementById("candidates-list");
+  wrap.innerHTML = "";
+  CANDIDATOS.forEach(c=>{
+    const el = document.createElement("div");
+    el.className = "cand-card";
+    const imagem = c.foto
+      ? `<img src="${c.foto}" class="cand-photo" alt="${c.nome}">`
+      : `<div class="cand-badge" style="background:${c.color}">${c.nome.charAt(0)}</div>`;
+    el.innerHTML = `
+      ${imagem}
+      <div>
+        <p class="cand-name">${c.nome}</p>
+        <p class="cand-desc">${c.desc}</p>
+      </div>
+    `;
+    el.addEventListener("click", ()=>{
+      selectedCandidate = c.key;
+      document.querySelectorAll(".cand-card").forEach(x=>x.classList.remove("selected"));
+      el.classList.add("selected");
+      document.getElementById("confirm-vote-btn").disabled = false;
+    });
+    wrap.appendChild(el);
+  });
+}
+
+document.getElementById("confirm-vote-btn").addEventListener("click", ()=>{
+  if(!selectedVoter || !selectedCandidate) return;
+  if(loginConfigurado() && !googleIdToken){
+    // ainda não confirmou a conta Google: mostra o botão de login e espera o callback
+    document.getElementById("confirm-vote-btn").style.display = "none";
+    document.getElementById("google-confirm-box").style.display = "block";
+    return;
+  }
+  enviarVoto();
+});
+
+async function enviarVoto(){
+  const btn = document.getElementById("confirm-vote-btn");
+  btn.style.display = "block";
+  btn.disabled = true;
+  btn.textContent = "A registar...";
+  const statusEl = document.getElementById("vote-status");
+  statusEl.innerHTML = "";
+
+  try{
+    if(!scriptConfigurado()){
+      statusEl.innerHTML = '<div class="status-msg error">A planilha ainda não está ligada. Configure a URL do Apps Script no código (SCRIPT_URL).</div>';
+      btn.disabled = false;
+      btn.textContent = "Confirmar voto";
+      return;
+    }
+    const body = new URLSearchParams({
+      id: selectedVoter.id.replace('b',''),
+      nome: selectedVoter.nome,
+      candidato: selectedCandidate,
+      id_token: googleIdToken || "",
+      email: googleEmail || ""
+    });
+    const res = await fetch(SCRIPT_URL, {method:"POST", body});
+    const result = await res.json();
+    if(result.status === "already_voted"){
+      statusEl.innerHTML = '<div class="status-msg warn">Este eleitor já tinha um voto registado na planilha.</div>';
+      btn.disabled = false;
+      btn.textContent = "Confirmar voto";
+      return;
+    }
+    if(result.status === "email_ja_usado"){
+      statusEl.innerHTML = '<div class="status-msg warn">Esta conta Google já foi usada para votar antes.</div>';
+      googleIdToken = null; googleEmail = null;
+      btn.disabled = false;
+      btn.textContent = "Confirmar voto";
+      return;
+    }
+    if(result.status === "token_invalido"){
+      statusEl.innerHTML = '<div class="status-msg error">Não foi possível confirmar sua conta Google. Tente entrar novamente.</div>';
+      googleIdToken = null; googleEmail = null;
+      btn.disabled = false;
+      btn.textContent = "Confirmar voto";
+      return;
+    }
+    if(result.status !== "ok"){
+      statusEl.innerHTML = '<div class="status-msg error">Não foi possível registar o voto. Tente novamente.</div>';
+      btn.disabled = false;
+      btn.textContent = "Confirmar voto";
+      return;
+    }
+    // sucesso -> carimbo
+    const overlay = document.getElementById("stamp-overlay");
+    overlay.classList.add("show");
+    setTimeout(()=>{
+      overlay.classList.remove("show");
+      document.getElementById("step-vote").style.display = "none";
+      document.getElementById("step-done").style.display = "block";
+      document.getElementById("done-msg").textContent = `${selectedVoter.nome}, o seu voto foi registado com sucesso.`;
+      btn.textContent = "Confirmar voto";
+    }, 1300);
+  }catch(err){
+    statusEl.innerHTML = '<div class="status-msg error">Erro ao registar o voto. Verifique a ligação e tente novamente.</div>';
+    btn.disabled = false;
+    btn.textContent = "Confirmar voto";
+  }
+}
+
+// ---------- Painel ----------
+document.getElementById("painel-enter-btn").addEventListener("click", ()=>{
+  const pass = document.getElementById("painel-pass").value;
+  const statusEl = document.getElementById("painel-status");
+  if(pass === PAINEL_SENHA){
+    document.getElementById("painel-gate").style.display = "none";
+    document.getElementById("painel-view").style.display = "block";
+    loadResults();
+  }else{
+    statusEl.innerHTML = '<div class="status-msg error">Senha incorreta.</div>';
+  }
+});
+
+document.getElementById("refresh-btn").addEventListener("click", loadResults);
+document.getElementById("export-btn").addEventListener("click", exportCSV);
+
+async function getAllVotes(){
+  try{
+    const rows = await fetchVotos();
+    return rows.map(r => ({
+      candidato: r.candidato,
+      eleitor_id: r.id,
+      eleitor_nome: r.nome,
+      timestamp: r.timestamp
+    }));
+  }catch(e){
+    return [];
+  }
+}
+
+async function loadResults(){
+  const barsWrap = document.getElementById("bars");
+  barsWrap.innerHTML = '<div class="empty-hint">A carregar da planilha...</div>';
+  if(!scriptConfigurado()){
+    barsWrap.innerHTML = '<div class="empty-hint">A planilha ainda não está ligada (SCRIPT_URL não configurada).</div>';
+    document.getElementById("total-line").textContent = "";
+    return;
+  }
+  const votes = await getAllVotes();
+  const counts = {};
+  CANDIDATOS.forEach(c=> counts[c.key] = 0);
+  votes.forEach(v=>{ if(counts[v.candidato] !== undefined) counts[v.candidato]++; });
+  const total = votes.length;
+
+  barsWrap.innerHTML = "";
+  CANDIDATOS.forEach(c=>{
+    const n = counts[c.key];
+    const pct = total>0 ? Math.round((n/total)*100) : 0;
+    const row = document.createElement("div");
+    row.className = "bar-row";
+    row.innerHTML = `
+      <div class="bar-label"><span>${c.nome}</span><span>${n} voto(s) · ${pct}%</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%; background:${c.color}"></div></div>
+    `;
+    barsWrap.appendChild(row);
+  });
+
+  document.getElementById("total-line").textContent =
+    `${total} de ${ELEITORES.length} eleitores já votaram.`;
+}
+
+async function exportCSV(){
+  const votes = await getAllVotes();
+  let csv = "ID;Nome;Candidatura;Data e Hora\n";
+  votes
+    .sort((a,b)=> new Date(a.timestamp) - new Date(b.timestamp))
+    .forEach(v=>{
+      const candLabel = CANDIDATOS.find(c=>c.key===v.candidato)?.nome || v.candidato;
+      csv += `${v.eleitor_id};${v.eleitor_nome};${candLabel};${new Date(v.timestamp).toLocaleString('pt-BR')}\n`;
+    });
+  const blob = new Blob(["\uFEFF" + csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `resultados_aecg_rj_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>
