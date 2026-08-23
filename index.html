@@ -217,6 +217,22 @@
     flex-shrink:0;
     border:2px solid #E7DFC6;
   }
+  /* chapa: foto - nome - foto */
+  .cand-card.chapa{
+    justify-content:space-between;
+  }
+  .cand-card.chapa .cand-photo-side{
+    width:44px;
+    height:44px;
+    border-radius:50%;
+    object-fit:cover;
+    flex-shrink:0;
+    border:2px solid #E7DFC6;
+  }
+  .cand-card.chapa .cand-text{
+    flex:1;
+    text-align:center;
+  }
   .cand-name{
     font-family:'Fraunces',serif;
     font-weight:600;
@@ -458,10 +474,12 @@ const ELEITORES = [
 ].map((v,i)=>({...v, idx:i}));
 
 const CANDIDATOS = [
-  // Preencha "foto" com um link direto de imagem (ex.: hospedada no Imgur, Google Drive público, etc.)
-  // Deixe "" para mostrar um círculo com a inicial do nome.
+  // Para candidato individual: preencha "foto" com um link direto de imagem.
+  // Para chapa (dupla): use "fotos": ["url_pessoa1", "url_pessoa2"] em vez de "foto".
+  // Deixe "" (ou omita) para mostrar um círculo com a inicial do nome.
   {key:"dalton", nome:"Dalton", desc:"Candidato", color:"#CE1126", foto:"https://i.imgur.com/pIRAoxJ.jpeg"},
-  {key:"jacque_domilina", nome:"Jacque & Domilina", desc:"Chapa candidata", color:"#0B3D2E", foto:"https://i.imgur.com/8X9UYnR.jpeg"},
+  {key:"jacque_domilina", nome:"Jacque & Domilina", desc:"Chapa candidata", color:"#0B3D2E",
+    fotos:["https://i.imgur.com/8X9UYnR.jpeg", "blob:https://imgur.com/1c3a39a4-2276-4517-a08a-9a5df3f98596"]},
   {key:"abstencao", nome:"Abstenção", desc:"Não deseja votar em nenhuma candidatura", color:"#8A8A8A", foto:""},
   {key:"nulo", nome:"Voto nulo", desc:"Anular o voto", color:"#4A4A4A", foto:""}
 ];
@@ -613,16 +631,33 @@ function renderCandidates(){
   CANDIDATOS.forEach(c=>{
     const el = document.createElement("div");
     el.className = "cand-card";
-    const imagem = c.foto
-      ? `<img src="${c.foto}" class="cand-photo" alt="${c.nome}">`
-      : `<div class="cand-badge" style="background:${c.color}">${c.nome.charAt(0)}</div>`;
-    el.innerHTML = `
-      ${imagem}
-      <div>
-        <p class="cand-name">${c.nome}</p>
-        <p class="cand-desc">${c.desc}</p>
-      </div>
-    `;
+
+    if(Array.isArray(c.fotos) && c.fotos.length >= 2){
+      // Chapa: foto - nome - foto
+      el.classList.add("chapa");
+      el.innerHTML = `
+        <img src="${c.fotos[0]}" class="cand-photo-side" alt="${c.nome}">
+        <div class="cand-text">
+          <p class="cand-name">${c.nome}</p>
+          <p class="cand-desc">${c.desc}</p>
+        </div>
+        <img src="${c.fotos[1]}" class="cand-photo-side" alt="${c.nome}">
+      `;
+    } else {
+      let imagem;
+      if(c.foto){
+        imagem = `<img src="${c.foto}" class="cand-photo" alt="${c.nome}">`;
+      } else {
+        imagem = `<div class="cand-badge" style="background:${c.color}">${c.nome.charAt(0)}</div>`;
+      }
+      el.innerHTML = `
+        ${imagem}
+        <div>
+          <p class="cand-name">${c.nome}</p>
+          <p class="cand-desc">${c.desc}</p>
+        </div>
+      `;
+    }
     el.addEventListener("click", ()=>{
       selectedCandidate = c.key;
       document.querySelectorAll(".cand-card").forEach(x=>x.classList.remove("selected"));
