@@ -410,7 +410,8 @@
     <div id="bars"></div>
     <div class="total-line" id="total-line"></div>
     <button class="secondary-btn" id="refresh-btn">Atualizar contagem</button>
-    <button class="primary-btn" id="export-btn">Baixar resultados (.csv)</button>
+    <!-- Botão de exportar CSV removido a pedido: ninguém deve poder baixar a lista de votos, mesmo com a senha do painel. -->
+    <!-- <button class="primary-btn" id="export-btn">Baixar resultados (.csv)</button> -->
   </div>
 </div>
 
@@ -764,7 +765,8 @@ document.getElementById("painel-enter-btn").addEventListener("click", ()=>{
 });
 
 document.getElementById("refresh-btn").addEventListener("click", loadResults);
-document.getElementById("export-btn").addEventListener("click", exportCSV);
+// Exportação de CSV desativada — botão removido do HTML acima, então este listener não encontra o elemento e é ignorado com segurança.
+// document.getElementById("export-btn").addEventListener("click", exportCSV);
 
 async function getAllVotes(){
   try{
@@ -811,6 +813,7 @@ async function loadResults(){
     `${total} de ${ELEITORES.length} eleitores já votaram.`;
 }
 
+// Função mantida no código (não é mais chamada por nenhum botão) caso queira reativar a exportação no futuro.
 async function exportCSV(){
   const votes = await getAllVotes();
   let csv = "ID;Nome;Candidatura;Data e Hora\n";
